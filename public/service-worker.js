@@ -10,22 +10,22 @@ const iconFiles = iconSizes.map(
 const staticFilesToPreCache = [
   "/",
   "/index.js",
-  "/index.html",
   "/favicon.ico",
   "/manifest.webmanifest",
   "/indexedDb.js",
-  "/styles.css"
+  "/styles.css",
 ].concat(iconFiles);
 
 
-//install 
-self.addEventListener("install", function (evt) {
+// install
+self.addEventListener("install", function(evt) {
   evt.waitUntil(
-      caches.open(DATA_CACHE_NAME).then((cache) => cache.add("/api/transaction"))
+    caches.open(CACHE_NAME).then(cache => {
+      console.log("Your files were pre-cached successfully!");
+      return cache.addAll(staticFilesToPreCache);
+    })
   );
-  evt.waitUntil(
-      caches.open(CACHE_NAME).then((cache) => cache.addAll(staticFilesToPreCache))
-  );
+
   self.skipWaiting();
 });
 
@@ -50,7 +50,7 @@ self.addEventListener("activate", function(evt) {
 // fetch
 self.addEventListener("fetch", function(evt) {
   const {url} = evt.request;
-  if (url.includes("/api/")) {
+  if (url.includes("/api/transactions")) {
     evt.respondWith(
       caches.open(DATA_CACHE_NAME).then(cache => {
         return fetch(evt.request)
